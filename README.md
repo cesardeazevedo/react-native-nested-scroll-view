@@ -7,7 +7,7 @@ You should only use this if you are using such native components such as Coordin
 
 * [react-native-collapsing-toolbar](https://github.com/cesardeazevedo/react-native-collapsing-toolbar)
 
-* [react-native-bottom-sheet-behavior](https://github.com/cesardeazevedo/react-native-bottom-sheet-behavior *Optional)
+* [react-native-bottom-sheet-behavior](https://github.com/cesardeazevedo/react-native-bottom-sheet-behavior)
 
 > Tell me where you are using it!
 
