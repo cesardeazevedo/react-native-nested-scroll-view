@@ -63,6 +63,7 @@ include ':app'
 +   include ':react-native-nested-scroll-view'
 +   project(':react-native-nested-scroll-view').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-nested-scroll-view/android')
 
+```
 
 # License
 
