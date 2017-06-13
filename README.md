@@ -1,7 +1,7 @@
 # react-native-nested-scroll-view
 
 This is a fork from the original react native ScrollView and a replacement with NestedScrollView.
-You should only use this if you are using such native components such as CoordinatorLayout.
+You should only use this if you are using native components such as CoordinatorLayout.
 
 ## Libraries Using it.
 
@@ -49,7 +49,7 @@ android/app/build.gradle
         compile fileTree(dir: "libs", include: ["*.jar"])
         compile "com.android.support:appcompat-v7:23.0.1"
         compile "com.facebook.react:react-native:+"  // From node_modules
-+       compile project(': react-native-nested-scroll-view')
++       compile project(':react-native-nested-scroll-view')
     }
 
 ```
