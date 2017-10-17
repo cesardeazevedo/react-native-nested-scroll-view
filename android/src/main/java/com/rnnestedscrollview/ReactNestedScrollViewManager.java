@@ -143,9 +143,13 @@ public class ReactNestedScrollViewManager
   }
 
   @Override
+  public void flashScrollIndicators(ReactNestedScrollView scrollView) {
+    scrollView.flashScrollIndicators();
+  }
+
+  @Override
   public void scrollTo(
-      ReactNestedScrollView scrollView,
-      ReactScrollViewCommandHelper.ScrollToCommandData data) {
+      ReactNestedScrollView scrollView, ReactScrollViewCommandHelper.ScrollToCommandData data) {
     if (data.mAnimated) {
       scrollView.smoothScrollTo(data.mDestX, data.mDestY);
     } else {

@@ -128,6 +128,10 @@ public class ReactNestedScrollView extends NestedScrollView implements ReactClip
     mScrollEnabled = scrollEnabled;
   }
 
+  public void flashScrollIndicators() {
+    awakenScrollBars();
+  }
+
   @Override
   protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
     MeasureSpecAssertions.assertExplicitMeasureSpec(widthMeasureSpec, heightMeasureSpec);
