@@ -207,6 +207,9 @@ public class ReactNestedScrollView extends NestedScrollView implements ReactClip
       return false;
     }
 
+    boolean result = super.onTouchEvent(ev);
+    ev.setLocation(ev.getRawX(), ev.getRawY());
+
     mVelocityHelper.calculateVelocity(ev);
     int action = ev.getAction() & MotionEvent.ACTION_MASK;
     if (action == MotionEvent.ACTION_UP && mDragging) {
@@ -218,7 +221,7 @@ public class ReactNestedScrollView extends NestedScrollView implements ReactClip
       disableFpsListener();
     }
 
-    return super.onTouchEvent(ev);
+    return result;
   }
 
   @Override
