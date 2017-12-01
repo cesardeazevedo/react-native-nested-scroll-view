@@ -1,6 +1,6 @@
 {
   "name": "react-native-nested-scroll-view",
-  "version": "5.0.1",
+  "version": "5.0.2",
   "description": "React Native ScrollView replacement with NestedScrollView",
   "main": "index.js",
   "keywords": [
