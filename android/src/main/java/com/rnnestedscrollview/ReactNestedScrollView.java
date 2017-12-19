@@ -435,7 +435,7 @@ public class ReactNestedScrollView extends NestedScrollView implements ReactClip
 
   private ReactViewBackgroundDrawable getOrCreateReactViewBackground() {
     if (mReactBackgroundDrawable == null) {
-      mReactBackgroundDrawable = new ReactViewBackgroundDrawable();
+      mReactBackgroundDrawable = new ReactViewBackgroundDrawable(mContentView.getContext());
       Drawable backgroundDrawable = getBackground();
       super.setBackground(null);  // required so that drawable callback is cleared before we add the
       // drawable back as a part of LayerDrawable
