@@ -19,7 +19,6 @@ import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.LayerDrawable;
 import android.support.v4.widget.NestedScrollView;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -38,7 +37,7 @@ import com.facebook.react.uimanager.events.NativeGestureUtil;
 import com.facebook.react.uimanager.ReactClippingViewGroup;
 import com.facebook.react.uimanager.ReactClippingViewGroupHelper;
 import com.facebook.infer.annotation.Assertions;
-import com.facebook.react.views.view.ReactViewBackgroundDrawable;
+import com.facebook.react.views.view.ReactViewBackgroundManager;
 
 /**
  * Forked from https://github.com/facebook/react-native/blob/0.45-stable/ReactAndroid/src/main/java/com/facebook/react/views/scroll/ReactScrollView.java
@@ -70,7 +69,7 @@ public class ReactNestedScrollView extends NestedScrollView implements ReactClip
   private @Nullable Drawable mEndBackground;
   private int mEndFillColor = Color.TRANSPARENT;
   private View mContentView;
-  private @Nullable ReactViewBackgroundDrawable mReactBackgroundDrawable;
+  private ReactViewBackgroundManager mReactBackgroundManager;
 
   public ReactNestedScrollView(ReactContext context) {
     this(context, null);
@@ -79,6 +78,7 @@ public class ReactNestedScrollView extends NestedScrollView implements ReactClip
   public ReactNestedScrollView(ReactContext context, @Nullable FpsListener fpsListener) {
     super(context);
     mFpsListener = fpsListener;
+    mReactBackgroundManager = new ReactViewBackgroundManager(this);
 
     if (!sTriedToGetScrollerField) {
       sTriedToGetScrollerField = true;
@@ -405,48 +405,29 @@ public class ReactNestedScrollView extends NestedScrollView implements ReactClip
     }
   }
 
+  @Override
   public void setBackgroundColor(int color) {
-    if (color == Color.TRANSPARENT && mReactBackgroundDrawable == null) {
-      // don't do anything, no need to allocate ReactBackgroundDrawable for transparent background
-    } else {
-      getOrCreateReactViewBackground().setColor(color);
-    }
+    mReactBackgroundManager.setBackgroundColor(color);
   }
 
   public void setBorderWidth(int position, float width) {
-    getOrCreateReactViewBackground().setBorderWidth(position, width);
+    mReactBackgroundManager.setBorderWidth(position, width);
   }
 
   public void setBorderColor(int position, float color, float alpha) {
-    getOrCreateReactViewBackground().setBorderColor(position, color, alpha);
+    mReactBackgroundManager.setBorderColor(position, color, alpha);
   }
 
   public void setBorderRadius(float borderRadius) {
-    getOrCreateReactViewBackground().setRadius(borderRadius);
+    mReactBackgroundManager.setBorderRadius(borderRadius);
   }
 
   public void setBorderRadius(float borderRadius, int position) {
-    getOrCreateReactViewBackground().setRadius(borderRadius, position);
+    mReactBackgroundManager.setBorderRadius(borderRadius, position);
   }
 
   public void setBorderStyle(@Nullable String style) {
-    getOrCreateReactViewBackground().setBorderStyle(style);
+    mReactBackgroundManager.setBorderStyle(style);
   }
 
-  private ReactViewBackgroundDrawable getOrCreateReactViewBackground() {
-    if (mReactBackgroundDrawable == null) {
-      mReactBackgroundDrawable = new ReactViewBackgroundDrawable();
-      Drawable backgroundDrawable = getBackground();
-      super.setBackground(null);  // required so that drawable callback is cleared before we add the
-      // drawable back as a part of LayerDrawable
-      if (backgroundDrawable == null) {
-        super.setBackground(mReactBackgroundDrawable);
-      } else {
-        LayerDrawable layerDrawable =
-            new LayerDrawable(new Drawable[]{mReactBackgroundDrawable, backgroundDrawable});
-        super.setBackground(layerDrawable);
-      }
-    }
-    return mReactBackgroundDrawable;
-  }
 }

@@ -20,7 +20,8 @@ public class RNNestedScrollViewPackage implements ReactPackage {
     public List<ViewManager> createViewManagers(ReactApplicationContext reactContext) {
       return Arrays.<ViewManager>asList(
           new ReactNestedScrollViewManager(),
-          new ReactHorizontalNestedScrollViewManager()
+          new ReactHorizontalNestedScrollViewManager(),
+          new ReactHorizontalNestedScrollContainerViewManager()
       );
     }
 }
