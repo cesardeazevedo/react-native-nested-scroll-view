@@ -1,7 +1,18 @@
 # react-native-nested-scroll-view
 
-This is a fork from the original react native ScrollView and a replacement with NestedScrollView.
-You should only use this if you are using native components such as CoordinatorLayout.
+This is a fork from the original react native ScrollView and a replacement with [NestedScrollView](https://developer.android.com/reference/android/support/v4/widget/NestedScrollView.html).
+
+**DISCLAIMER**
+
+I build this component while i was building the [react-native-bottom-sheet-behavior](https://github.com/cesardeazevedo/react-native-bottom-sheet-behavior) and the [react-native-collapsing-toolbar](https://github.com/cesardeazevedo/react-native-collapsing-toolbar), which the [NestedScrollView](https://developer.android.com/reference/android/support/v4/widget/NestedScrollView.html) was a requirement in order to work with [CoordinatorLayout's](https://developer.android.com/reference/android/support/design/widget/CoordinatorLayout.html), if you are not using any native component, and just want to add some nested scroll in some List, i don't know if this component will work for you, feel free to give a try.
+
+This component is too generic and wasn't built covering all Nested Scroll use cases, instead, it was born as just a fork of the original react native ScrollView, and i haven't tested all use cases and possibilities.
+
+This project is android only, and will fallback to ScrollView on iOS.
+
+## Issues
+
+If you have any issues, please attach a example project that i could reproduce it, since i don't know how people are exactly using it, without a project example, i won't be able to help you.
 
 ## Libraries Using it.
 
