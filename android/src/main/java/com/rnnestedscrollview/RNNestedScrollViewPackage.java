@@ -11,12 +11,12 @@ import com.facebook.react.uimanager.ViewManager;
 import com.facebook.react.bridge.JavaScriptModule;
 
 public class RNNestedScrollViewPackage implements ReactPackage {
-    @Override
+    //@Override
     public List<NativeModule> createNativeModules(ReactApplicationContext reactContext) {
       return Collections.emptyList();
     }
 
-    @Override
+    //@Override
     public List<ViewManager> createViewManagers(ReactApplicationContext reactContext) {
       return Arrays.<ViewManager>asList(
           new ReactNestedScrollViewManager(),
