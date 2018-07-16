@@ -293,6 +293,9 @@ public class ReactNestedScrollView extends NestedScrollView implements ReactClip
         scrollWindowHeight / 2);
 
       ViewCompat.postInvalidateOnAnimation(this);
+
+      // RNNestedScrollView CHANGE
+      // Fixed fling issue on support library 26 (see issue https://github.com/cesardeazevedo/react-native-nested-scroll-view/issues/16)
       super.fling(velocityY);
       // END FB SCROLLVIEW CHANGE
     } else {
