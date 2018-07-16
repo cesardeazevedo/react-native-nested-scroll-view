@@ -1,46 +1,42 @@
-
 /**
  * Copyright (c) 2015-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  */
 
 package com.rnnestedscrollview;
 
-import javax.annotation.Nullable;
-
-import java.lang.reflect.Field;
-
+import android.annotation.TargetApi;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.support.v4.widget.NestedScrollView;
+import android.support.v4.view.ViewCompat;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.OverScroller;
-import android.widget.ScrollView;
-
+import com.facebook.infer.annotation.Assertions;
 import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.common.ReactConstants;
 import com.facebook.react.views.scroll.FpsListener;
 import com.facebook.react.views.scroll.OnScrollDispatchHelper;
 import com.facebook.react.views.scroll.VelocityHelper;
+import com.facebook.react.views.scroll.ReactScrollViewHelper;
 import com.facebook.react.uimanager.MeasureSpecAssertions;
-import com.facebook.react.uimanager.events.NativeGestureUtil;
 import com.facebook.react.uimanager.ReactClippingViewGroup;
 import com.facebook.react.uimanager.ReactClippingViewGroupHelper;
-import com.facebook.infer.annotation.Assertions;
+import com.facebook.react.uimanager.events.NativeGestureUtil;
 import com.facebook.react.views.view.ReactViewBackgroundManager;
+import java.lang.reflect.Field;
+import javax.annotation.Nullable;
 
 /**
- * Forked from https://github.com/facebook/react-native/blob/0.45-stable/ReactAndroid/src/main/java/com/facebook/react/views/scroll/ReactScrollView.java
+ * Forked from https://github.com/facebook/react-native/blob/0.56-stable/ReactAndroid/src/main/java/com/facebook/react/views/scroll/ReactScrollView.java
  *
  * A simple subclass of ScrollView that doesn't dispatch measure and layout to its children and has
  * a scroll listener to send scroll events to JS.
@@ -48,13 +44,14 @@ import com.facebook.react.views.view.ReactViewBackgroundManager;
  * <p>ReactNestedScrollView only supports vertical scrolling. For horizontal scrolling,
  * use {@link ReactHorizontalScrollView}.
  */
+@TargetApi(11)
 public class ReactNestedScrollView extends NestedScrollView implements ReactClippingViewGroup, ViewGroup.OnHierarchyChangeListener, View.OnLayoutChangeListener {
 
-  private static Field sScrollerField;
+  private static @Nullable Field sScrollerField;
   private static boolean sTriedToGetScrollerField = false;
 
   private final OnScrollDispatchHelper mOnScrollDispatchHelper = new OnScrollDispatchHelper();
-  private final OverScroller mScroller;
+  private final @Nullable OverScroller mScroller;
   private final VelocityHelper mVelocityHelper = new VelocityHelper();
 
   private @Nullable Rect mClippingRect;
@@ -80,6 +77,15 @@ public class ReactNestedScrollView extends NestedScrollView implements ReactClip
     mFpsListener = fpsListener;
     mReactBackgroundManager = new ReactViewBackgroundManager(this);
 
+    mScroller = getOverScrollerFromParent();
+    setOnHierarchyChangeListener(this);
+    setScrollBarStyle(SCROLLBARS_OUTSIDE_OVERLAY);
+  }
+
+  @Nullable
+  private OverScroller getOverScrollerFromParent() {
+    OverScroller scroller;
+
     if (!sTriedToGetScrollerField) {
       sTriedToGetScrollerField = true;
       try {
@@ -95,32 +101,31 @@ public class ReactNestedScrollView extends NestedScrollView implements ReactClip
 
     if (sScrollerField != null) {
       try {
-        Object scroller = sScrollerField.get(this);
-        if (scroller instanceof OverScroller) {
-          mScroller = (OverScroller) scroller;
+        Object scrollerValue = sScrollerField.get(this);
+        if (scrollerValue instanceof OverScroller) {
+          scroller = (OverScroller) scrollerValue;
         } else {
           Log.w(
             ReactConstants.TAG,
             "Failed to cast mScroller field in ScrollView (probably due to OEM changes to AOSP)! " +
               "This app will exhibit the bounce-back scrolling bug :(");
-          mScroller = null;
+          scroller = null;
         }
       } catch (IllegalAccessException e) {
         throw new RuntimeException("Failed to get mScroller from ScrollView!", e);
       }
     } else {
-      mScroller = null;
+      scroller = null;
     }
 
-    setOnHierarchyChangeListener(this);
-    setScrollBarStyle(SCROLLBARS_OUTSIDE_OVERLAY);
+    return scroller;
   }
 
   public void setSendMomentumEvents(boolean sendMomentumEvents) {
     mSendMomentumEvents = sendMomentumEvents;
   }
 
-  public void setScrollPerfTag(String scrollPerfTag) {
+  public void setScrollPerfTag(@Nullable String scrollPerfTag) {
     mScrollPerfTag = scrollPerfTag;
   }
 
@@ -177,7 +182,7 @@ public class ReactNestedScrollView extends NestedScrollView implements ReactClip
         mDoneFlinging = false;
       }
 
-      ReactNestedScrollViewHelper.emitScrollEvent(
+      ReactScrollViewHelper.emitScrollEvent(
         this,
         mOnScrollDispatchHelper.getXFlingVelocity(),
         mOnScrollDispatchHelper.getYFlingVelocity());
@@ -190,12 +195,19 @@ public class ReactNestedScrollView extends NestedScrollView implements ReactClip
       return false;
     }
 
-    if (super.onInterceptTouchEvent(ev)) {
-      NativeGestureUtil.notifyNativeGestureStarted(this, ev);
-      ReactNestedScrollViewHelper.emitScrollBeginDragEvent(this);
-      mDragging = true;
-      enableFpsListener();
-      return true;
+    try {
+      if (super.onInterceptTouchEvent(ev)) {
+        NativeGestureUtil.notifyNativeGestureStarted(this, ev);
+        ReactScrollViewHelper.emitScrollBeginDragEvent(this);
+        mDragging = true;
+        enableFpsListener();
+        return true;
+      }
+    } catch (IllegalArgumentException e) {
+      // Log and ignore the error. This seems to be a bug in the android SDK and
+      // this is the commonly accepted workaround.
+      // https://tinyurl.com/mw6qkod (Stack Overflow)
+      Log.w(ReactConstants.TAG, "Error intercepting touch event.", e);
     }
 
     return false;
@@ -210,7 +222,7 @@ public class ReactNestedScrollView extends NestedScrollView implements ReactClip
     mVelocityHelper.calculateVelocity(ev);
     int action = ev.getAction() & MotionEvent.ACTION_MASK;
     if (action == MotionEvent.ACTION_UP && mDragging) {
-      ReactNestedScrollViewHelper.emitScrollEndDragEvent(
+      ReactScrollViewHelper.emitScrollEndDragEvent(
         this,
         mVelocityHelper.getXVelocity(),
         mVelocityHelper.getYVelocity());
@@ -280,7 +292,7 @@ public class ReactNestedScrollView extends NestedScrollView implements ReactClip
         0,
         scrollWindowHeight / 2);
 
-      postInvalidateOnAnimation();
+      ViewCompat.postInvalidateOnAnimation(this);
 
       // END FB SCROLLVIEW CHANGE
     } else {
@@ -290,21 +302,24 @@ public class ReactNestedScrollView extends NestedScrollView implements ReactClip
     if (mSendMomentumEvents || isScrollPerfLoggingEnabled()) {
       mFlinging = true;
       enableFpsListener();
-      ReactNestedScrollViewHelper.emitScrollMomentumBeginEvent(this);
+      ReactScrollViewHelper.emitScrollMomentumBeginEvent(this, 0, velocityY);
       Runnable r = new Runnable() {
         @Override
         public void run() {
           if (mDoneFlinging) {
             mFlinging = false;
             disableFpsListener();
-            ReactNestedScrollViewHelper.emitScrollMomentumEndEvent(ReactNestedScrollView.this);
+            ReactScrollViewHelper.emitScrollMomentumEndEvent(ReactNestedScrollView.this);
           } else {
             mDoneFlinging = true;
-            ReactNestedScrollView.this.postOnAnimationDelayed(this, ReactNestedScrollViewHelper.MOMENTUM_DELAY);
+            ViewCompat.postOnAnimationDelayed(
+                ReactNestedScrollView.this,
+                this,
+                ReactScrollViewHelper.MOMENTUM_DELAY);
           }
         }
       };
-      postOnAnimationDelayed(r, ReactNestedScrollViewHelper.MOMENTUM_DELAY);
+      ViewCompat.postOnAnimationDelayed(this, r, ReactScrollViewHelper.MOMENTUM_DELAY);
     }
   }
 

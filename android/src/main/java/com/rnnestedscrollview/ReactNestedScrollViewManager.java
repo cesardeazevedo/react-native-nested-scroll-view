@@ -1,44 +1,45 @@
 /**
  * Copyright (c) 2015-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  */
 
 package com.rnnestedscrollview;
 
-import javax.annotation.Nullable;
-
-import java.util.Map;
-
+import android.annotation.TargetApi;
 import android.graphics.Color;
-import android.view.View;
+import android.support.v4.view.ViewCompat;
 
 import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.common.MapBuilder;
 import com.facebook.react.module.annotations.ReactModule;
 import com.facebook.react.uimanager.PixelUtil;
+import com.facebook.react.uimanager.ReactClippingViewGroupHelper;
 import com.facebook.react.uimanager.Spacing;
-import com.facebook.react.uimanager.ViewProps;
-import com.facebook.react.uimanager.annotations.ReactProp;
 import com.facebook.react.uimanager.ThemedReactContext;
 import com.facebook.react.uimanager.ViewGroupManager;
-import com.facebook.react.uimanager.ReactClippingViewGroupHelper;
+import com.facebook.react.uimanager.ViewProps;
+import com.facebook.react.uimanager.annotations.ReactProp;
 import com.facebook.react.uimanager.annotations.ReactPropGroup;
 import com.facebook.yoga.YogaConstants;
 import com.facebook.react.views.scroll.FpsListener;
 import com.facebook.react.views.scroll.ScrollEventType;
+import com.facebook.react.views.scroll.ReactScrollViewHelper;
 import com.facebook.react.views.scroll.ReactScrollViewCommandHelper;
 
+import javax.annotation.Nullable;
+import java.util.Map;
+
 /**
- * Forked from https://github.com/facebook/react-native/blob/0.45-stable/ReactAndroid/src/main/java/com/facebook/react/views/scroll/ReactScrollViewManager.java
+ * Forked from https://github.com/facebook/react-native/blob/0.56-stable/ReactAndroid/src/main/java/com/facebook/react/views/scroll/ReactScrollViewManager.java
+ *
  * View manager for {@link ReactNestedScrollView} components.
  *
  * <p>Note that {@link ReactNestedScrollView} and {@link ReactHorizontalScrollView} are exposed to JS
  * as a single ScrollView component, configured via the {@code horizontal} boolean property.
  */
+@TargetApi(11)
 @ReactModule(name = ReactNestedScrollViewManager.REACT_CLASS)
 public class ReactNestedScrollViewManager
     extends ViewGroupManager<ReactNestedScrollView>
@@ -106,7 +107,7 @@ public class ReactNestedScrollViewManager
    * @param scrollPerfTag
    */
   @ReactProp(name = "scrollPerfTag")
-  public void setScrollPerfTag(ReactNestedScrollView view, String scrollPerfTag) {
+  public void setScrollPerfTag(ReactNestedScrollView view, @Nullable String scrollPerfTag) {
     view.setScrollPerfTag(scrollPerfTag);
   }
 
@@ -126,7 +127,12 @@ public class ReactNestedScrollViewManager
    */
   @ReactProp(name = "overScrollMode")
   public void setOverScrollMode(ReactNestedScrollView view, String value) {
-    view.setOverScrollMode(ReactNestedScrollViewHelper.parseOverScrollMode(value));
+    view.setOverScrollMode(ReactScrollViewHelper.parseOverScrollMode(value));
+  }
+
+  @ReactProp(name = "nestedScrollEnabled")
+  public void setNestedScrollEnabled(ReactNestedScrollView view, boolean value) {
+    ViewCompat.setNestedScrollingEnabled(view, value);
   }
 
   @Override
@@ -199,8 +205,8 @@ public class ReactNestedScrollViewManager
   }, customType = "Color")
   public void setBorderColor(ReactNestedScrollView view, int index, Integer color) {
     float rgbComponent =
-        color == null ? YogaConstants.UNDEFINED : (float) ((int)color & 0x00FFFFFF);
-    float alphaComponent = color == null ? YogaConstants.UNDEFINED : (float) ((int)color >>> 24);
+        color == null ? YogaConstants.UNDEFINED : (float) (color & 0x00FFFFFF);
+    float alphaComponent = color == null ? YogaConstants.UNDEFINED : (float) (color >>> 24);
     view.setBorderColor(SPACING_TYPES[index], rgbComponent, alphaComponent);
   }
 
@@ -219,12 +225,12 @@ public class ReactNestedScrollViewManager
   }
 
   @Override
-  public @Nullable Map getExportedCustomDirectEventTypeConstants() {
+  public @Nullable Map<String, Object> getExportedCustomDirectEventTypeConstants() {
     return createExportedCustomDirectEventTypeConstants();
   }
 
-  public static Map createExportedCustomDirectEventTypeConstants() {
-    return MapBuilder.builder()
+  public static Map<String, Object> createExportedCustomDirectEventTypeConstants() {
+    return MapBuilder.<String, Object>builder()
         .put(ScrollEventType.SCROLL.getJSEventName(), MapBuilder.of("registrationName", "onScroll"))
         .put(ScrollEventType.BEGIN_DRAG.getJSEventName(), MapBuilder.of("registrationName", "onScrollBeginDrag"))
         .put(ScrollEventType.END_DRAG.getJSEventName(), MapBuilder.of("registrationName", "onScrollEndDrag"))
