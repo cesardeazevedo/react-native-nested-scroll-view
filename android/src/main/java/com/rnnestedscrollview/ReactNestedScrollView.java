@@ -293,7 +293,7 @@ public class ReactNestedScrollView extends NestedScrollView implements ReactClip
         scrollWindowHeight / 2);
 
       ViewCompat.postInvalidateOnAnimation(this);
-
+      super.fling(velocityY);
       // END FB SCROLLVIEW CHANGE
     } else {
       super.fling(velocityY);
