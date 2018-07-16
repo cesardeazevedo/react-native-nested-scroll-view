@@ -32,7 +32,7 @@ If you have any issues, please attach a example project that i could reproduce i
 
 ### Manual installation
 
-MainActivity.java
+MainApplication.java
 
 ```diff
 
