@@ -1,24 +1,30 @@
-buildscript {
-    repositories {
-        jcenter()
-    }
+def safeExtGet(prop, fallback) {
+    rootProject.ext.has(prop) ? rootProject.ext.get(prop) : fallback
+}
 
-    dependencies {
-        classpath 'com.android.tools.build:gradle:2.2.3'
+allprojects {
+    repositories {
+        mavenLocal()
+        jcenter()
+        maven {
+            // For developing the library outside the context of the example app, expect `react-native`
+            // to be installed at `./node_modules`.
+            url "$projectDir/../../react-native-bottom-sheet-behavior/example/node_modules/react-native/android"
+        }
     }
 }
 
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion 25
-    buildToolsVersion "23.0.1"
+    compileSdkVersion safeExtGet('compileSdkVersion', 25)
+    buildToolsVersion safeExtGet('buildToolsVersion', '23.0.1')
 
     defaultConfig {
-        minSdkVersion 16
-        targetSdkVersion 25
+        minSdkVersion safeExtGet('minSdkVersion', 16)
+        targetSdkVersion safeExtGet('targetSdkVersion', 25)
         versionCode 1
-        versionName "1.0"
+        versionName '1.0'
     }
     lintOptions {
         abortOnError false
@@ -29,8 +35,11 @@ repositories {
     mavenCentral()
 }
 
+def supportLibraryVersion = safeExtGet('supportLibraryVersion', '25.3.1')
+
 dependencies {
-    compile 'com.facebook.react:react-native:+'
-    compile 'com.android.support:appcompat-v7:25.3.1'
-    compile 'com.android.support:design:25.3.1'
+    implementation "com.android.support:appcompat-v7:$supportLibraryVersion"
+    implementation "com.android.support:design:$supportLibraryVersion"
+    //noinspection GradleDynamicVersion
+    implementation 'com.facebook.react:react-native:+'
 }
