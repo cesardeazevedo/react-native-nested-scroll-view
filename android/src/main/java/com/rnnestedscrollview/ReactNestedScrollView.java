@@ -283,9 +283,9 @@ public class ReactNestedScrollView extends NestedScrollView implements ReactClip
       postInvalidateOnAnimation();
 
       // END FB SCROLLVIEW CHANGE
-    } else {
-      super.fling(velocityY);
     }
+    //Fixed fling issue on support library 26 (see issue https://github.com/cesardeazevedo/react-native-nested-scroll-view/issues/16)
+    super.fling(velocityY);
 
     if (mSendMomentumEvents || isScrollPerfLoggingEnabled()) {
       mFlinging = true;
