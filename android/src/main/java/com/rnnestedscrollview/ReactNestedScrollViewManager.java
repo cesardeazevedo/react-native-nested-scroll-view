@@ -10,11 +10,13 @@ package com.rnnestedscrollview;
 import android.annotation.TargetApi;
 import android.graphics.Color;
 import android.support.v4.view.ViewCompat;
+import android.util.DisplayMetrics;
 
 import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.common.MapBuilder;
 import com.facebook.react.module.annotations.ReactModule;
 import com.facebook.react.uimanager.PixelUtil;
+import com.facebook.react.uimanager.DisplayMetricsHolder;
 import com.facebook.react.uimanager.ReactClippingViewGroupHelper;
 import com.facebook.react.uimanager.Spacing;
 import com.facebook.react.uimanager.ThemedReactContext;
@@ -28,11 +30,13 @@ import com.facebook.react.views.scroll.ScrollEventType;
 import com.facebook.react.views.scroll.ReactScrollViewHelper;
 import com.facebook.react.views.scroll.ReactScrollViewCommandHelper;
 
-import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import javax.annotation.Nullable;
 
 /**
- * Forked from https://github.com/facebook/react-native/blob/0.56-stable/ReactAndroid/src/main/java/com/facebook/react/views/scroll/ReactScrollViewManager.java
+ * Forked from https://github.com/facebook/react-native/blob/0.57-stable/ReactAndroid/src/main/java/com/facebook/react/views/scroll/ReactScrollViewManager.java
  *
  * View manager for {@link ReactNestedScrollView} components.
  *
@@ -79,6 +83,26 @@ public class ReactNestedScrollViewManager
   @ReactProp(name = "showsVerticalScrollIndicator")
   public void setShowsVerticalScrollIndicator(ReactNestedScrollView view, boolean value) {
     view.setVerticalScrollBarEnabled(value);
+  }
+
+  @ReactProp(name = "decelerationRate")
+  public void setDecelerationRate(ReactNestedScrollView view, float decelerationRate) {
+    view.setDecelerationRate(decelerationRate);
+  }
+  @ReactProp(name = "snapToInterval")
+  public void setSnapToInterval(ReactNestedScrollView view, float snapToInterval) {
+    // snapToInterval needs to be exposed as a float because of the Javascript interface.
+    DisplayMetrics screenDisplayMetrics = DisplayMetricsHolder.getScreenDisplayMetrics();
+    view.setSnapInterval((int) (snapToInterval * screenDisplayMetrics.density));
+  }
+  @ReactProp(name = "snapToOffsets")
+  public void setSnapToOffsets(ReactNestedScrollView view, @Nullable ReadableArray snapToOffsets) {
+    DisplayMetrics screenDisplayMetrics = DisplayMetricsHolder.getScreenDisplayMetrics();
+    List<Integer> offsets = new ArrayList<Integer>();
+    for (int i = 0; i < snapToOffsets.size(); i++) {
+      offsets.add((int) (snapToOffsets.getDouble(i) * screenDisplayMetrics.density));
+    }
+    view.setSnapOffsets(offsets);
   }
 
   @ReactProp(name = ReactClippingViewGroupHelper.PROP_REMOVE_CLIPPED_SUBVIEWS)
@@ -210,6 +234,11 @@ public class ReactNestedScrollViewManager
     view.setBorderColor(SPACING_TYPES[index], rgbComponent, alphaComponent);
   }
 
+  @ReactProp(name = "overflow")
+  public void setOverflow(ReactNestedScrollView view, @Nullable String overflow) {
+    view.setOverflow(overflow);
+  }
+
   @Override
   public void scrollToEnd(
       ReactNestedScrollView scrollView,
@@ -231,11 +260,11 @@ public class ReactNestedScrollViewManager
 
   public static Map<String, Object> createExportedCustomDirectEventTypeConstants() {
     return MapBuilder.<String, Object>builder()
-        .put(ScrollEventType.SCROLL.getJSEventName(), MapBuilder.of("registrationName", "onScroll"))
-        .put(ScrollEventType.BEGIN_DRAG.getJSEventName(), MapBuilder.of("registrationName", "onScrollBeginDrag"))
-        .put(ScrollEventType.END_DRAG.getJSEventName(), MapBuilder.of("registrationName", "onScrollEndDrag"))
-        .put(ScrollEventType.MOMENTUM_BEGIN.getJSEventName(), MapBuilder.of("registrationName", "onMomentumScrollBegin"))
-        .put(ScrollEventType.MOMENTUM_END.getJSEventName(), MapBuilder.of("registrationName", "onMomentumScrollEnd"))
+        .put(ScrollEventType.getJSEventName(ScrollEventType.SCROLL), MapBuilder.of("registrationName", "onScroll"))
+        .put(ScrollEventType.getJSEventName(ScrollEventType.BEGIN_DRAG), MapBuilder.of("registrationName", "onScrollBeginDrag"))
+        .put(ScrollEventType.getJSEventName(ScrollEventType.END_DRAG), MapBuilder.of("registrationName", "onScrollEndDrag"))
+        .put(ScrollEventType.getJSEventName(ScrollEventType.MOMENTUM_BEGIN), MapBuilder.of("registrationName", "onMomentumScrollBegin"))
+        .put(ScrollEventType.getJSEventName(ScrollEventType.MOMENTUM_END), MapBuilder.of("registrationName", "onMomentumScrollEnd"))
         .build();
   }
 }
