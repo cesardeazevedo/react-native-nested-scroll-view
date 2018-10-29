@@ -24,11 +24,15 @@ If you have any issues, please attach a example project that i could reproduce i
 
 ## Getting started
 
-**ATTENTION**: Make sure to use react-native 0.56.0 or a greater version
+**ATTENTION**: Make sure to use react-native 0.57.0 or a greater version
 
-#### react-native version 0.56.0 or greater
+#### react-native version 0.57.4 or greater
 
 `$ npm install react-native-nested-scroll-view --save`
+
+#### react-native version 0.56.0 or bellow
+
+`$ npm install react-native-nested-scroll-view@7.0.0 --save`
 
 #### react-native versions 0.55.4 or bellow
 
@@ -61,11 +65,11 @@ android/app/build.gradle
 ```diff
 
     dependencies {
-        compile fileTree(dir: "libs", include: ["*.jar"])
-+       compile 'com.android.support:appcompat-v7:26.1.0'
-+       compile 'com.android.support:design:26.1.0'
-        compile "com.facebook.react:react-native:+"  // From node_modules
-+       compile project(':react-native-nested-scroll-view')
+        implementation fileTree(dir: "libs", include: ["*.jar"])
++       implementation 'com.android.support:appcompat-v7:27.1.1'
++       implementation 'com.android.support:design:27.1.1'
+        implementation 'com.facebook.react:react-native:+'  // From node_modules
++       implementation project(':react-native-nested-scroll-view')
     }
 
 ```
