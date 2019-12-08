@@ -9,14 +9,14 @@ package com.rnnestedscrollview;
 
 import android.annotation.TargetApi;
 import android.graphics.Color;
-import android.support.v4.view.ViewCompat;
+import androidx.core.view.ViewCompat;
 import android.util.DisplayMetrics;
 
 import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.common.MapBuilder;
 import com.facebook.react.module.annotations.ReactModule;
-import com.facebook.react.uimanager.PixelUtil;
 import com.facebook.react.uimanager.DisplayMetricsHolder;
+import com.facebook.react.uimanager.PixelUtil;
 import com.facebook.react.uimanager.ReactClippingViewGroupHelper;
 import com.facebook.react.uimanager.Spacing;
 import com.facebook.react.uimanager.ThemedReactContext;
@@ -43,7 +43,6 @@ import javax.annotation.Nullable;
  * <p>Note that {@link ReactNestedScrollView} and {@link ReactHorizontalScrollView} are exposed to JS
  * as a single ScrollView component, configured via the {@code horizontal} boolean property.
  */
-@TargetApi(11)
 @ReactModule(name = ReactNestedScrollViewManager.REACT_CLASS)
 public class ReactNestedScrollViewManager
     extends ViewGroupManager<ReactNestedScrollView>
@@ -105,6 +104,15 @@ public class ReactNestedScrollViewManager
     view.setSnapOffsets(offsets);
   }
 
+  @ReactProp(name = "snapToStart")
+  public void setSnapToStart(ReactNestedScrollView view, boolean snapToStart) {
+    view.setSnapToStart(snapToStart);
+  }
+  @ReactProp(name = "snapToEnd")
+  public void setSnapToEnd(ReactNestedScrollView view, boolean snapToEnd) {
+    view.setSnapToEnd(snapToEnd);
+  }
+
   @ReactProp(name = ReactClippingViewGroupHelper.PROP_REMOVE_CLIPPED_SUBVIEWS)
   public void setRemoveClippedSubviews(ReactNestedScrollView view, boolean removeClippedSubviews) {
     view.setRemoveClippedSubviews(removeClippedSubviews);
@@ -133,6 +141,11 @@ public class ReactNestedScrollViewManager
   @ReactProp(name = "scrollPerfTag")
   public void setScrollPerfTag(ReactNestedScrollView view, @Nullable String scrollPerfTag) {
     view.setScrollPerfTag(scrollPerfTag);
+  }
+
+  @ReactProp(name = "pagingEnabled")
+  public void setPagingEnabled(ReactNestedScrollView view, boolean pagingEnabled) {
+    view.setPagingEnabled(pagingEnabled);
   }
 
   /**
@@ -251,6 +264,11 @@ public class ReactNestedScrollViewManager
     } else {
       scrollView.scrollTo(scrollView.getScrollX(), bottom);
     }
+  }
+
+  @ReactProp(name = "persistentScrollbar")
+  public void setPersistentScrollbar(ReactNestedScrollView view, boolean value) {
+    view.setScrollbarFadingEnabled(!value);
   }
 
   @Override
